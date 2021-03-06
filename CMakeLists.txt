@@ -3,8 +3,8 @@ project(main VERSION 0.1.0)
 
 set(CMAKE_C_STANDARD 11)
 
-# include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-# conan_basic_setup()
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
 
 find_package(PkgConfig REQUIRED)
 
@@ -18,12 +18,12 @@ endif()
 
 foreach (dep ${DEPS})
   PKG_CHECK_MODULES(${dep} REQUIRED ${dep})
+  include_directories(${${dep}_INCLUDE_DIRS})
+  link_directories(${${dep}_LIBRARY_DIRS})
+  add_definitions(${${dep}_CFLAGS_DIRS})
 endforeach()
 
-include_directories(include)
-include_directories(${GTK3_INCLUDE_DIRS})
-link_directories(${GTK3_LIBRARY_DIRS})
-add_definitions(${GTK3_CFLAGS_DIRS})
+include_directories("include")
 
 set(CMAKE_C_FLAGS_RELEASE -mwindows)
 

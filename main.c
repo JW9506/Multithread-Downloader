@@ -4,6 +4,8 @@
 #include "common/sqlite_manager.h"
 #include "model/database_common.h"
 #include "model/task_info.h"
+#include "common/http_manager.h"
+#include "common/http_common.h"
 
 static void TestDatabase() {
     TaskInfo task_info = {
@@ -38,9 +40,36 @@ static void TestDatabase() {
     }
 }
 
+void OnProgress(void* receiver, double current, double total) {
+    printf(">>>> OnProgress\n");
+}
+void OnError() { printf(">>>> OnError\n"); }
+void OnSuccess() { printf(">>>> OnSuccess\n"); }
+
+static void TestHttp() {
+    Request request = { .progress_callback = OnProgress,
+                        .error_callback = OnError,
+                        .success_callback = OnSuccess };
+    RequestContext* context = CreateRequestContext(
+        &request,
+        "http://5b0988e595225.cdn.sohucs.com/images/20190925/"
+        "86ce0e8c7ea045e3bc7d25b8a008b008.jpeg",
+        "./");
+    SendRequest(context);
+    if (context->curl_code == CURLE_OK) {
+        request.success_callback(request.receiver, "OK");
+    } else {
+        printf(">>>curl_code %d\n", context->curl_code);
+        request.error_callback(request.receiver, context->curl_code,
+                               curl_easy_strerror(context->curl_code));
+    }
+    DestroyRequestContext(context);
+}
+
 int main(int argc, char** argv) {
-    OpenDataBase("downloader.db");
-    InitTables();
-    TestDatabase();
+    // OpenDataBase("downloader.db");
+    // InitTables();
+    // TestDatabase();
+    TestHttp();
     return 0;
 }

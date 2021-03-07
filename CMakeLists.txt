@@ -32,6 +32,7 @@ set(CMAKE_INSTALL_PREFIX install)
 set(CMAKE_INSTALL_RPATH \$ORIGIN/../lib)
 
 file(GLOB_RECURSE files "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+
 add_executable(main main.c ${files})
 target_link_libraries(main ${CONAN_LIBS})
 

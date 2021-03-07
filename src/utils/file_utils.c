@@ -1,7 +1,11 @@
 #include "utils/file_utils.h"
 #ifdef _WIN32
 #include <windows.h>
+#define DIR_SEPARATOR '\\'
+#else
+#define DIR_SEPARATOR '/'
 #endif
+
 
 static FILE* SmartFOpen(const char* filename, const char* mode) {
     FILE* file;
@@ -18,12 +22,35 @@ static FILE* SmartFOpen(const char* filename, const char* mode) {
     return file;
 }
 
-static void JoinPath(char* full_filename, const char* directory,
-                     const char* filename) {
-    strcpy(full_filename, directory);
-    size_t d_len = strlen(directory);
-    if (directory[d_len - 1] != '/') { strcat(full_filename, "/"); }
-    strcat(full_filename, filename);
+void JoinPath(char* destination, const char* path1, const char* path2) {
+    /*     strcpy(full_filename, directory);
+        size_t d_len = strlen(directory);
+        if (directory[d_len - 1] != '/') { strcat(full_filename, "/"); }
+        strcat(full_filename, filename); */
+
+    if (path1 && *path1) {
+        size_t len = strlen(path1);
+        strcpy(destination, path1);
+        if (destination[len - 1] == DIR_SEPARATOR) {
+            if (path2 && *path2) {
+                strcpy(destination + len,
+                       (*path2 == DIR_SEPARATOR) ? (path2 + 1) : path2);
+            }
+        } else {
+            if (path2 && *path2) {
+                if (*path2 == DIR_SEPARATOR) {
+                    strcpy(destination + len, path2);
+                } else {
+                    destination[len] = DIR_SEPARATOR;
+                    strcpy(destination + len + 1, path2);
+                }
+            }
+        }
+    } else if (path2 && *path2) {
+        strcpy(destination, path2);
+    } else {
+        destination[0] = '\0';
+    }
 }
 
 FILE* SmartOpenFileInDirectory(const char* directory, const char* filename,

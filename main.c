@@ -9,6 +9,8 @@
 #include "model/request_api.h"
 #include "common/threadpool_manager.h"
 #include "utils/object_util.h"
+#include "ui/ui_main.h"
+#include "basics.h"
 
 static void sleepms(unsigned int ms) {
     long seconds = ms /1000;
@@ -109,15 +111,18 @@ static void TestTaskInfo() {
 }
 
 int main(int argc, char** argv) {
-    // OpenDataBase("downloader.db");
-    // InitTables();
+    if (!is_ok(OpenDataBase("downloader.db"))) {
+        return 1;
+    }
+    InitTables();
     // TestDatabase();
     // TestHttp();
     InitThreadPool();
+    RunDownloaderMain(argc, argv);
     // TestTaskInfo();
-    TestDownloadFile();
+    // TestDownloadFile();
     // sleepms(5000);
-    while (1) { }
+    // while (1) { }
     DestroyThreadPool();
     printf("hello\n");
     return 0;

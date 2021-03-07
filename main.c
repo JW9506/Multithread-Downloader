@@ -11,10 +11,10 @@
 #include "utils/object_util.h"
 
 static void sleepms(unsigned int ms) {
-    struct timeval tval;
-    tval.tv_sec = ms / 1000;
-    tval.tv_usec = (ms * 1000) % 1000000;
-    select(0, NULL, NULL, NULL, &tval);
+    long seconds = ms /1000;
+    long nanoseconds = ms % 1000 * 1000000L;
+    thrd_sleep(&(struct timespec){ .tv_sec = seconds, .tv_nsec = nanoseconds },
+               NULL);
 }
 
 static void TestDatabase() {
@@ -90,7 +90,7 @@ static void TestDownloadFile() {
     DownloadFile(NULL, &handler, task_info, OnSuccess, OnError, OnCancellation,
                  OnProgress);
 
-    // sleepms(6000);
+    sleepms(1000);
     CancelRequest(handler);
     free(task_info);
     free(handler);

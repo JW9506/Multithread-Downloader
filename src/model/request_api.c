@@ -5,8 +5,10 @@
 
 static void DownloadFileInternal(Request* request) {
     TaskInfo* task_info = (TaskInfo*)request->request_parameter;
+
     RequestContext* context =
         CreateRequestContext(request, task_info->url, task_info->directory);
+
     if (request->request_handler) {
         *request->request_handler = context;
     }

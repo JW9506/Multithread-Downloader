@@ -80,19 +80,20 @@ static void TestHttp() {
 }
 
 static void TestDownloadFile() {
-    TaskInfo task_info = {
-        .filename = "lyf.jpeg",
-        .directory = "./",
-        .url = "http://txt.janpn.com/to/txt/171/171182.txt",
-        .resume_support = 1,
-        .size = 1000000,
-    };
-    void* handler;
-    DownloadFile(NULL, &handler, &task_info, OnSuccess, OnError, OnCancellation,
+    CREATE_OBJECT_CLEANED(TaskInfo, task_info);
+    task_info->filename = "lyf.jpeg";
+    task_info->directory = "./";
+    task_info->url = "http://txt.janpn.com/to/txt/171/171182.txt";
+    task_info->resume_support = 1;
+    task_info->size = 1000000;
+    void* handler = malloc(sizeof(void*));
+    DownloadFile(NULL, &handler, task_info, OnSuccess, OnError, OnCancellation,
                  OnProgress);
 
-    sleepms(6000);
+    // sleepms(6000);
     CancelRequest(handler);
+    free(task_info);
+    free(handler);
 }
 
 static void OnGetTaskInfoSuccess(void* receiver, void* data) {
@@ -115,7 +116,7 @@ int main(int argc, char** argv) {
     InitThreadPool();
     // TestTaskInfo();
     TestDownloadFile();
-    sleepms(5000);
+    // sleepms(5000);
     while (1) { }
     DestroyThreadPool();
     printf("hello\n");

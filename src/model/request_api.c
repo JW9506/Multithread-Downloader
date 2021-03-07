@@ -32,6 +32,7 @@ static void DownloadFileInternal(Request* request) {
     if (request->request_handler) { *request->request_handler = NULL; }
     free(request);
     DestroyRequestContext(context);
+    printf("end>>>\n");
 }
 
 static void GetFileInfoInternal(Request* request) {

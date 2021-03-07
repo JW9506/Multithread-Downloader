@@ -18,10 +18,17 @@ RetrieveOutputNameFromContentDisposition(RequestContext* request_context,
     if (!content_disposition) { return RESULT_FAILURE; }
     content_disposition += FILENAME_KEY_LENGTH;
     length -= FILENAME_KEY_LENGTH;
+
+    if (*content_disposition == '"') {
+        ++content_disposition;
+        --length;
+    }
+
     char output_filename[length];
     int i = 0;
     while (i < length && content_disposition[i] != '\r' &&
-           content_disposition[i] != ';' && content_disposition[i] != '\0') {
+           content_disposition[i] != ';' && content_disposition[i] != '\0' &&
+           content_disposition[i] != '"') {
         output_filename[i] = content_disposition[i];
         ++i;
     }

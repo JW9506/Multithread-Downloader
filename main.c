@@ -41,7 +41,7 @@ static void TestDatabase() {
 }
 
 void OnProgress(void* receiver, double current, double total) {
-    printf(">>>> OnProgress\n");
+    printf(">>>> OnProgress %.0f/%.0f\n", current, total);
 }
 void OnError() { printf(">>>> OnError\n"); }
 void OnSuccess() { printf(">>>> OnSuccess\n"); }
@@ -52,9 +52,11 @@ static void TestHttp() {
                         .success_callback = OnSuccess };
     RequestContext* context = CreateRequestContext(
         &request,
-        "http://5b0988e595225.cdn.sohucs.com/images/20190925/"
-        "86ce0e8c7ea045e3bc7d25b8a008b008.jpeg",
+        "https://dl.bintray.com/conan-community/conan/conan/OpenSSL/1.0.2s/"
+        "stable/0/export/conanfile.py",
         "./");
+    // "http://5b0988e595225.cdn.sohucs.com/images/20190925/"
+    // "86ce0e8c7ea045e3bc7d25b8a008b008.jpeg",
     SendRequest(context);
     if (context->curl_code == CURLE_OK) {
         request.success_callback(request.receiver, "OK");

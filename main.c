@@ -6,6 +6,16 @@
 #include "model/task_info.h"
 #include "common/http_manager.h"
 #include "common/http_common.h"
+#include "model/request_api.h"
+#include "common/threadpool_manager.h"
+#include "utils/object_util.h"
+
+static void sleepms(unsigned int ms) {
+    struct timeval tval;
+    tval.tv_sec = ms / 1000;
+    tval.tv_usec = (ms * 1000) % 1000000;
+    select(0, NULL, NULL, NULL, &tval);
+}
 
 static void TestDatabase() {
     TaskInfo task_info = {
@@ -40,11 +50,12 @@ static void TestDatabase() {
     }
 }
 
-void OnProgress(void* receiver, double current, double total) {
-    printf(">>>> OnProgress %.0f/%.0f\n", current, total);
+void OnProgress(void* receiver, uint64_t current, uint64_t total) {
+    printf(">>>> OnProgress %lld/%lld\n", current, total);
 }
 void OnError() { printf(">>>> OnError\n"); }
 void OnSuccess() { printf(">>>> OnSuccess\n"); }
+void OnCancellation() { printf(">>>> OnCancellation\n"); }
 
 static void TestHttp() {
     Request request = { .progress_callback = OnProgress,
@@ -68,10 +79,45 @@ static void TestHttp() {
     DestroyRequestContext(context);
 }
 
+static void TestDownloadFile() {
+    TaskInfo task_info = {
+        .filename = "lyf.jpeg",
+        .directory = "./",
+        .url = "http://txt.janpn.com/to/txt/171/171182.txt",
+        .resume_support = 1,
+        .size = 1000000,
+    };
+    void* handler;
+    DownloadFile(NULL, &handler, &task_info, OnSuccess, OnError, OnCancellation,
+                 OnProgress);
+
+    sleepms(6000);
+    CancelRequest(handler);
+}
+
+static void OnGetTaskInfoSuccess(void* receiver, void* data) {
+    printf("success:\n");
+    TaskInfoDump((TaskInfo*)data);
+    free(data);
+}
+
+static void TestTaskInfo() {
+    GetTaskInfo("http://5b0988e595225.cdn.sohucs.com/images/20190925/"
+                "86ce0e8c7ea045e3bc7d25b8a008b008.jpeg",
+                ".", OnGetTaskInfoSuccess, OnError);
+}
+
 int main(int argc, char** argv) {
     // OpenDataBase("downloader.db");
     // InitTables();
     // TestDatabase();
-    TestHttp();
+    // TestHttp();
+    InitThreadPool();
+    // TestTaskInfo();
+    TestDownloadFile();
+    sleepms(5000);
+    while (1) { }
+    DestroyThreadPool();
+    printf("hello\n");
     return 0;
 }

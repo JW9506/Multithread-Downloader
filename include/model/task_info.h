@@ -3,6 +3,7 @@
 #include <gtk-3.0/gtk/gtk.h>
 
 #define STATUS_COMPLETED 1
+#define STATUS_READY 2
 
 typedef struct {
     gint64 id;

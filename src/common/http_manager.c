@@ -151,13 +151,13 @@ void SendRequest(RequestContext* request_context) {
 
     char content_range[40];
     if (request_context->range_start >= 0 &&
-        request_context->range_start >= 0) {
+        request_context->range_end >= 0) {
         snprintf(content_range, 40, "%llu-%llu", request_context->range_start,
                  request_context->range_end);
     } else if (request_context->range_start >= 0) {
         snprintf(content_range, 40, "%llu-", request_context->range_start);
     } else if (request_context->range_end >= 0) {
-        snprintf(content_range, 40, "%-llu", request_context->range_end);
+        snprintf(content_range, 40, "-%llu", request_context->range_end);
     } else {
         content_range[0] = 0;
     }

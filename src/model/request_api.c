@@ -96,9 +96,7 @@ void DownloadFile(void* receiver, void** request_handler, TaskInfo* task_info,
 
 void CancelRequest(void* request_handler) {
     RequestContext* context = (RequestContext*)request_handler;
-    printf("hello>>\n");
     if (context) {
-        printf("world>>\n");
         context->is_running = 0;
     }
 }

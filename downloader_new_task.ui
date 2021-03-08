@@ -30,11 +30,34 @@
             <property name="can-focus">False</property>
             <child>
               <object class="GtkButton" id="ok_button">
-                <property name="label" translatable="yes">Confirm</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="can-default">True</property>
                 <property name="receives-default">True</property>
+                <child>
+                  <object class="GtkOverlay">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="margin-start">12</property>
+                        <property name="label" translatable="yes">Confirm</property>
+                      </object>
+                      <packing>
+                        <property name="index">-1</property>
+                      </packing>
+                    </child>
+                    <child type="overlay">
+                      <object class="GtkSpinner" id="ok_spinner">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">True</property>

@@ -16,9 +16,7 @@ static void GtkMain(int argc, char** argv) {
     if (!builder) { g_abort(); }
     SetupButtons(builder);
     InitTaskList(builder);
-    printf("hello>>\n");
     gtk_main();
-    printf("hello>><<\n");
     DestroyTaskList();
     g_object_unref(builder);
 }

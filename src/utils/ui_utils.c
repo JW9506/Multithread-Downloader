@@ -24,10 +24,16 @@ GtkBuilder* OpenWindowWithStyle(char* layout_path, char* style_path,
     if (quit_on_destroy) {
         g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     }
-    printf("world\n");
-
-/*     gtk_style_context_remove_provider_for_screen(
-        gtk_window_get_screen(window), (GtkStyleProvider*)css_provider);
-    g_object_unref(css_provider); */
+    /*     gtk_style_context_remove_provider_for_screen(
+            gtk_window_get_screen(window), (GtkStyleProvider*)css_provider);
+        g_object_unref(css_provider); */
     return builder;
+}
+
+void ShowAlertDialog(GtkWindow* window, const char* message) {
+    GtkDialog* alert_dialog = (GtkDialog*)gtk_message_dialog_new(
+        window, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "%s",
+        message);
+    gtk_dialog_run(alert_dialog);
+    gtk_widget_destroy(GTK_WIDGET(alert_dialog));
 }

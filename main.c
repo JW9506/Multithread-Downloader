@@ -124,6 +124,5 @@ int main(int argc, char** argv) {
     // sleepms(5000);
     // while (1) { }
     DestroyThreadPool();
-    printf("hello\n");
     return 0;
 }

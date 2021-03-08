@@ -1,10 +1,15 @@
+#include <stdlib.h>
 #include "ui/ui_new_task.h"
 #include "utils/ui_utils.h"
 #include "utils/file_utils.h"
-#include "stdlib.h"
+#include "model/request_api.h"
+#include "basics.h"
+#include "ui/ui_task_list.h"
 
 #define URL_PATTERN                                                            \
-    "https:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{}"
+    "https:\\/\\/"                                                             \
+    "(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-"  \
+    "Z0-9()@:%_\\+.~#?&//=]*)"
 
 static struct NewTaskDialogContext {
     GtkBuilder* builder;
@@ -18,18 +23,77 @@ static struct NewTaskDialogContext {
     GtkButton* cancel_button;
 } * context;
 
-static gboolean OnTaskCreatedSuccessful(char const* message) { }
-
-static gboolean OnTaskCreatedFailed(char const* message) { }
-
-static void OnGetTaskInfoSuccessful(void* receiver, void* data) { }
-
-static void OnGetTaskInfoFailed(void* receiver, int code, char const* message) {
+static gboolean OnTaskCreatedSuccessful(TaskInfo* task_info) {
+    if (context) {
+        AddTaskToList(task_info);
+        free(task_info);
+        gtk_dialog_response(context->dialog, 1);
+    }
+    return FALSE;// return false to hint one time only
 }
 
-void CreateTask(char const* url, char const* directory) { }
+static gboolean OnTaskCreatedFailed(char const* message) {
+    if (context) {
+        gtk_spinner_stop(context->ok_spinner);
+        gtk_widget_set_sensitive(GTK_WIDGET(context->ok_button), TRUE);
+        gtk_widget_set_sensitive(GTK_WIDGET(context->cancel_button), TRUE);
+        gtk_window_set_deletable(GTK_WINDOW(context->dialog), TRUE);
+        ShowAlertDialog(GTK_WINDOW(context->dialog), message);
+    }
+    return FALSE;
+}
 
-static void OnConfirmCreateTask(GtkWidget* widget, gpointer data) { }
+static void OnGetTaskInfoSuccessful(void* receiver, void* data) {
+    TaskInfo* task_info = (TaskInfo*)data;
+    int result = InsertTaskInfo(task_info);
+    if (result == RESULT_OK) {
+        gdk_threads_add_idle(G_SOURCE_FUNC(OnTaskCreatedSuccessful),
+                             (gpointer)task_info);
+    } else {
+        gdk_threads_add_idle(G_SOURCE_FUNC(OnTaskCreatedFailed),
+                             "Failed to insert into database.");
+    }
+}
+
+static void OnGetTaskInfoFailed(void* receiver, CURLcode code, char const* message) {
+    gdk_threads_add_idle(G_SOURCE_FUNC(OnTaskCreatedFailed), (gpointer)message);
+}
+
+void CreateTask(char const* url, char const* directory) {
+    GetTaskInfo(url, directory, OnGetTaskInfoSuccessful, OnGetTaskInfoFailed);
+}
+
+static void OnConfirmCreateTask(GtkWidget* widget, gpointer data) {
+    if (!context) { return; }
+    char const* input_url = gtk_entry_get_text(context->url_entry);
+    printf("url: %s\n", input_url);
+    int error_found = 0;
+    if (g_regex_match_simple(URL_PATTERN, input_url, 0, 0)) {
+        gtk_widget_set_visible(GTK_WIDGET(context->url_error_label), 0);
+    } else {
+        gtk_widget_set_visible(GTK_WIDGET(context->url_error_label), 1);
+        error_found = 1;
+    }
+
+    char const* chosen_directory = gtk_file_chooser_get_filename(
+        GTK_FILE_CHOOSER(context->directory_choose_button));
+    printf("chosen directory %s\n", chosen_directory);
+    if (chosen_directory) {
+        gtk_widget_set_visible(GTK_WIDGET(context->directory_error_label), 0);
+    } else {
+        printf("Please choose a directory to save.\n");
+        gtk_widget_set_visible(GTK_WIDGET(context->directory_error_label), 1);
+        error_found = 1;
+    }
+
+    if (!error_found) {
+        gtk_spinner_start(context->ok_spinner);
+        gtk_widget_set_sensitive(GTK_WIDGET(context->ok_button), 0);
+        gtk_widget_set_sensitive(GTK_WIDGET(context->cancel_button), 0);
+        gtk_window_set_deletable(GTK_WINDOW(context->dialog), 0);
+        CreateTask(input_url, chosen_directory);
+    }
+}
 
 static void OnDialogDestroyed(GtkWidget* widget, gpointer data) {
     free(context);

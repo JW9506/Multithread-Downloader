@@ -86,7 +86,7 @@ static void TestDownloadFile() {
                  OnProgress);
 
     sleepms(1000);
-    CancelRequest(handler);
+    // CancelRequest(handler);
     free(task_info);
     free(handler);
 }

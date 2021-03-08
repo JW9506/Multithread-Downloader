@@ -26,7 +26,7 @@ int InsertTaskInfo(TaskInfo* task_info) {
         TaskInfo* task_info_from_db = FindTaskInfoById(GetLastInsertRowId());
         task_info->create_time = strdup(task_info_from_db->create_time);
         task_info->id = task_info_from_db->id;
-        DestroyTaskInfo(task_info_from_db);
+        DestroyTaskInfo(&task_info_from_db);
     }
     return result;
 }
@@ -58,19 +58,28 @@ GPtrArray* ListTaskInfos() {
         .data_retriever = (DataRetriever)TaskInfoRetriever,
     };
     int res = QueryMany(&query_many_result, "select * from task_info");
-    if (res == RESULT_FAILURE) {
-        return NULL;
-    }
+    printf("QueryMany %d\n", res);
+    if (res == RESULT_FAILURE) { return NULL; }
     return query_many_result.array;
 }
 
-void DestroyTaskInfo(TaskInfo* task_info) {
+void DestroyTaskInfoContent(TaskInfo* task_info) {
     if (task_info) {
         free(task_info->filename);
         free(task_info->directory);
         free(task_info->url);
         free(task_info->create_time);
-        free(task_info);
+    }
+}
+
+void DestroyTaskInfo(TaskInfo** task_info) {
+    if (task_info && *task_info) {
+        free((*task_info)->filename);
+        free((*task_info)->directory);
+        free((*task_info)->url);
+        free((*task_info)->create_time);
+        free((*task_info));
+        *task_info = NULL;
     }
 }
 

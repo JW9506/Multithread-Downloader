@@ -17,6 +17,10 @@ static DownloadTask* GetSelectedTask() {
             gtk_tree_path_get_indices(g_list_first(selected_rows)->data)[0];
         g_list_free_full(selected_rows, (GDestroyNotify)gtk_tree_path_free);
         printf("%d\n", selected_index);
+        if (!g_slist_nth(context->download_task_list, selected_index)) {
+            return NULL;
+        }
+        /* segment fault */
         return g_slist_nth(context->download_task_list, selected_index)->data;
     }
     return NULL;
@@ -27,8 +31,10 @@ static void OnTaskListActivated(GtkTreeView* tree_view, GtkTreePath* path,
     DownloadTask* selected_download_task = GetSelectedTask();
     if (selected_download_task->task_info.status != STATUS_COMPLETED) {
         if (selected_download_task->task_info.status == STATUS_DOWNLOADING) {
+            printf("pausing\n");
             PauseSelectedTask();
         } else {
+            printf("resuming\n");
             ResumeSelectedTask();
         }
     }
@@ -37,7 +43,7 @@ static void OnTaskListActivated(GtkTreeView* tree_view, GtkTreePath* path,
 static void CancelDownloadingAndDestroyTask(DownloadTask* download_task) {
     if (download_task->request_handler != NULL &&
         download_task->task_info.status == STATUS_DOWNLOADING) {
-        download_task->task_info.status == STATUS_REMOVED;
+        download_task->task_info.status = STATUS_REMOVED;
         CancelRequest(download_task->request_handler);
     } else {
         DestroyDownloadTask(download_task);
@@ -64,6 +70,7 @@ void DestroyTaskList() {
 
 void InitTaskList(GtkBuilder* builder) {
     if (!context) {
+        printf("==== >> hello\n");
         context = malloc(sizeof(TaskListContext));
         context->window = GTK_WINDOW(gtk_builder_get_object(builder, "window"));
         g_signal_connect_swapped(context->window, "destroy",
@@ -74,8 +81,10 @@ void InitTaskList(GtkBuilder* builder) {
             gtk_builder_get_object(builder, "task_selection"));
         GtkTreeView* task_list_view =
             GTK_TREE_VIEW(gtk_builder_get_object(builder, "task_tree"));
+        // on row selected
         g_signal_connect(task_list_view, "row-activated",
                          G_CALLBACK(OnTaskListActivated), NULL);
+        printf("==== >> world\n");
         GPtrArray* task_infos = ListTaskInfos();
         context->download_task_list = NULL;
         context->downloading_task_size = 0;
@@ -110,7 +119,8 @@ void RemoveSelectedTask() {
 void ResumeSelectedTask() {
     DownloadTask* selected_download_task = GetSelectedTask();
     if (selected_download_task &&
-        selected_download_task->task_info.status == STATUS_PAUSED) {
+        selected_download_task->task_info.status < STATUS_DOWNLOADING) {
+        printf("hello\n");
         DownloadFile(selected_download_task,
                      &selected_download_task->request_handler,
                      &selected_download_task->task_info,
@@ -121,6 +131,7 @@ void ResumeSelectedTask() {
         UpdateDownloadTaskWithStatus(selected_download_task,
                                      STATUS_DOWNLOADING);
     }
+    printf("world\n");
 }
 
 void PauseSelectedTask() {

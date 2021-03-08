@@ -39,7 +39,7 @@ DownloadTask* CreateDownloadTask(TaskListContext* task_list_context,
     char filesize_display_buffer[12];
     FormatByte(filesize_display_buffer, task_info->size);
     GtkTreeIter iterator;
-    gtk_list_store_append(GTK_LIST_STORE(task_list_context->task_selection),
+    gtk_list_store_append(GTK_LIST_STORE(task_list_context->task_store),
                           &iterator);
     gtk_list_store_set(task_list_context->task_store, &iterator,
                        COLUMN_FILENAME, task_info->filename, COLUMN_SIZE,
@@ -59,7 +59,7 @@ DownloadTask* CreateDownloadTask(TaskListContext* task_list_context,
 
 void DestroyDownloadTask(DownloadTask* download_task) {
     RemoveDownloadTaskFromList(download_task);
-    DestroyTaskInfo(&download_task->task_info);
+    /* todo:sf */DestroyTaskInfoContent(&download_task->task_info);
     free(download_task);
 }
 
@@ -140,7 +140,7 @@ void UpdateDownloadTaskWithStatus(DownloadTask* download_task, int status) {
                download_task->task_info.id, download_task->task_info.status,
                status);
         if (download_task->task_info.status == STATUS_DOWNLOADING) {
-            --download_task->task_list_context->download_task_list;
+            --download_task->task_list_context->downloading_task_size;
         }
         download_task->task_info.status = status;
         if (status == STATUS_DOWNLOADING) {

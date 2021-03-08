@@ -1,4 +1,18 @@
 #include "utils/ui_utils.h"
+#include "utils/object_util.h"
+
+typedef struct WindowStyleContext {
+    GtkBuilder* builder;
+    GtkCssProvider* provider;
+} WindowStyleContext;
+static void OnWindowDestroyed(GtkWindow* window, WindowStyleContext* context) {
+
+    gtk_style_context_remove_provider_for_screen(
+        gtk_window_get_screen(window), (GtkStyleProvider*)context->provider);
+    g_object_unref(context->builder);
+    g_object_unref(context->provider);
+    free(context);
+}
 
 GtkBuilder* OpenWindowWithStyle(char* layout_path, char* style_path,
                                 int quit_on_destroy) {
@@ -21,12 +35,14 @@ GtkBuilder* OpenWindowWithStyle(char* layout_path, char* style_path,
                                               (GtkStyleProvider*)css_provider,
                                               GTK_STYLE_PROVIDER_PRIORITY_USER);
 
+    CREATE_OBJECT_CLEANED(WindowStyleContext, windowStyleContext);
+    windowStyleContext->builder = builder;
+    windowStyleContext->provider = css_provider;
+    g_signal_connect_after(window, "destroy", G_CALLBACK(OnWindowDestroyed),
+                           windowStyleContext);
     if (quit_on_destroy) {
         g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     }
-    /*     gtk_style_context_remove_provider_for_screen(
-            gtk_window_get_screen(window), (GtkStyleProvider*)css_provider);
-        g_object_unref(css_provider); */
     return builder;
 }
 

@@ -59,7 +59,7 @@ DownloadTask* CreateDownloadTask(TaskListContext* task_list_context,
 
 void DestroyDownloadTask(DownloadTask* download_task) {
     RemoveDownloadTaskFromList(download_task);
-    /* todo:sf */DestroyTaskInfoContent(&download_task->task_info);
+    DestroyTaskInfo(&download_task->task_info);
     free(download_task);
 }
 

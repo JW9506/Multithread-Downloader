@@ -34,6 +34,5 @@ void UpdateTaskInfo(TaskInfo* task_info);
 void DeleteTaskInfo(TaskInfo* task_info);
 TaskInfo* FindTaskInfoById(sqlite3_int64 id);
 GPtrArray* ListTaskInfos();
-void DestroyTaskInfo(TaskInfo** task_info);
-void DestroyTaskInfoContent(TaskInfo* task_info);
+void DestroyTaskInfo(TaskInfo* task_info);
 void TaskInfoDump(TaskInfo* task_info);

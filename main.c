@@ -41,7 +41,7 @@ static void TestDatabase() {
     if (last_inserted_task) {
         TaskInfoDump(last_inserted_task);
         DeleteTaskInfo(last_inserted_task);
-        DestroyTaskInfo(&last_inserted_task);
+        DestroyTaskInfo(last_inserted_task);
     }
 }
 

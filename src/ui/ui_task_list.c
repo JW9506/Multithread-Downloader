@@ -70,7 +70,6 @@ void DestroyTaskList() {
 
 void InitTaskList(GtkBuilder* builder) {
     if (!context) {
-        printf("==== >> hello\n");
         context = malloc(sizeof(TaskListContext));
         context->window = GTK_WINDOW(gtk_builder_get_object(builder, "window"));
         g_signal_connect_swapped(context->window, "destroy",
@@ -84,7 +83,6 @@ void InitTaskList(GtkBuilder* builder) {
         // on row selected
         g_signal_connect(task_list_view, "row-activated",
                          G_CALLBACK(OnTaskListActivated), NULL);
-        printf("==== >> world\n");
         GPtrArray* task_infos = ListTaskInfos();
         context->download_task_list = NULL;
         context->downloading_task_size = 0;
@@ -120,7 +118,6 @@ void ResumeSelectedTask() {
     DownloadTask* selected_download_task = GetSelectedTask();
     if (selected_download_task &&
         selected_download_task->task_info.status < STATUS_DOWNLOADING) {
-        printf("hello\n");
         DownloadFile(selected_download_task,
                      &selected_download_task->request_handler,
                      &selected_download_task->task_info,
@@ -131,7 +128,6 @@ void ResumeSelectedTask() {
         UpdateDownloadTaskWithStatus(selected_download_task,
                                      STATUS_DOWNLOADING);
     }
-    printf("world\n");
 }
 
 void PauseSelectedTask() {

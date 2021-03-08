@@ -108,14 +108,15 @@ int main(int argc, char** argv) {
         return 1;
     }
     InitTables();
-    // TestDatabase();
     // TestHttp();
     InitThreadPool();
+    // TestDatabase();
     RunDownloaderMain(argc, argv);
     // TestTaskInfo();
     // TestDownloadFile();
     // sleepms(5000);
     // while (1) { }
     DestroyThreadPool();
+    CloseDatabase();
     return 0;
 }

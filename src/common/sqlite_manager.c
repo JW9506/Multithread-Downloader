@@ -98,11 +98,10 @@ int QueryMany(QueryManyResult* query_result, char* sql_format, ...) {
             }
             while (1) {
                 int sql_result = sqlite3_step(stmt);
-                if (sqlite3_step(stmt) == SQLITE_ROW) {
+                if (sql_result == SQLITE_ROW) {
                     void* data = malloc(query_result->element_size);
                     g_ptr_array_add(query_result->array, data);
                     query_result->data_retriever(data, stmt);
-                    result = RESULT_OK;
                 } else if (sql_result == SQLITE_ERROR) {
                     printf("execution failed: %s\n", sqlite3_errmsg(db));
                     result = RESULT_FAILURE;
@@ -162,5 +161,8 @@ int ExecuteSql(char* sql_format, ...) {
 }
 
 void CloseDatabase() {
-    if (db) { sqlite3_close(db); }
+    if (db) {
+        sqlite3_close(db);
+        db = NULL;
+    }
 }

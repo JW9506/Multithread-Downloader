@@ -58,8 +58,6 @@ GPtrArray* ListTaskInfos() {
         .data_retriever = (DataRetriever)TaskInfoRetriever,
     };
     int res = QueryMany(&query_many_result, "select * from task_info");
-    printf("QueryMany %d\n", res);
-    if (res == RESULT_FAILURE) { return NULL; }
     return query_many_result.array;
 }
 

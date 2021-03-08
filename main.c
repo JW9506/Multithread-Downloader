@@ -12,13 +12,6 @@
 #include "ui/ui_main.h"
 #include "basics.h"
 
-static void sleepms(unsigned int ms) {
-    long seconds = ms /1000;
-    long nanoseconds = ms % 1000 * 1000000L;
-    thrd_sleep(&(struct timespec){ .tv_sec = seconds, .tv_nsec = nanoseconds },
-               NULL);
-}
-
 static void TestDatabase() {
     TaskInfo task_info = {
         .filename = "abc.txt",
@@ -48,7 +41,7 @@ static void TestDatabase() {
     if (last_inserted_task) {
         TaskInfoDump(last_inserted_task);
         // DeleteTaskInfo(last_inserted_task);
-        DestroyTaskInfo(&last_inserted_task);
+        DestroyTaskInfo(last_inserted_task);
     }
 }
 

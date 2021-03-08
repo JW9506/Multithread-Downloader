@@ -2,8 +2,20 @@
 #include <sqlite3.h>
 #include <gtk-3.0/gtk/gtk.h>
 
-#define STATUS_COMPLETED 1
-#define STATUS_READY 2
+#define STATUS_REMOVED     0
+#define STATUS_COMPLETED   1
+#define STATUS_READY       2
+#define STATUS_DOWNLOADING 3
+#define STATUS_PAUSED      4
+#define STATUS_ERROR       5
+
+#define STATUS_COMPLETED_TEXT   "Completed"
+#define STATUS_READY_TEXT       "Ready"
+#define STATUS_DOWNLOADING_TEXT "Downloading"
+#define STATUS_PAUSED_TEXT      "Paused"
+#define STATUS_ERROR_TEXT       "Error"
+
+#define INVALID_ID -1
 
 typedef struct {
     gint64 id;
@@ -22,5 +34,5 @@ void UpdateTaskInfo(TaskInfo* task_info);
 void DeleteTaskInfo(TaskInfo* task_info);
 TaskInfo* FindTaskInfoById(sqlite3_int64 id);
 GPtrArray* ListTaskInfos();
-void DestroyTaskInfo(TaskInfo** task_info);
+void DestroyTaskInfo(TaskInfo* task_info);
 void TaskInfoDump(TaskInfo* task_info);

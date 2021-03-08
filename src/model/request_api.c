@@ -2,6 +2,7 @@
 #include "common/http_manager.h"
 #include "common/threadpool_manager.h"
 #include "utils/object_util.h"
+#include <gtk/gtk.h>
 
 static void DownloadFileInternal(Request* request) {
     TaskInfo* task_info = (TaskInfo*)request->request_parameter;
@@ -9,9 +10,7 @@ static void DownloadFileInternal(Request* request) {
     RequestContext* context =
         CreateRequestContext(request, task_info->url, task_info->directory);
 
-    if (request->request_handler) {
-        *request->request_handler = context;
-    }
+    if (request->request_handler) { *request->request_handler = context; }
     context->header_only = 0;
     if (task_info->resume_support) {
         context->range_start = task_info->progress;
@@ -20,16 +19,19 @@ static void DownloadFileInternal(Request* request) {
     SendRequest(context);
     if (context->curl_code == CURLE_OK) {
         if (context->response_code >= 200 && context->response_code < 300) {
-            request->success_callback(request->receiver, NULL);
+            gdk_threads_add_idle((GSourceFunc)request->success_callback,
+                                 (gpointer)request->receiver);
         } else {
-            request->error_callback(request->receiver, context->response_code,
-                                    NULL);
+            printf("curl http: %d\n", context->response_code);
+            gdk_threads_add_idle((GSourceFunc)request->error_callback,
+                                 (gpointer)request->receiver);
         }
     } else if (context->curl_code == CURLE_ABORTED_BY_CALLBACK) {
-        request->cancel_callback(request->receiver);
+        gdk_threads_add_idle((GSourceFunc)request->cancel_callback,
+                             (gpointer)request->receiver);
     } else {
-        request->error_callback(request->receiver, context->curl_code,
-                                curl_easy_strerror(context->curl_code));
+        gdk_threads_add_idle((GSourceFunc)request->error_callback,
+                             (gpointer)request->receiver); // 16-11, 16:47
     }
     if (request->request_handler) { *request->request_handler = NULL; }
     free(request);
@@ -96,7 +98,5 @@ void DownloadFile(void* receiver, void** request_handler, TaskInfo* task_info,
 
 void CancelRequest(void* request_handler) {
     RequestContext* context = (RequestContext*)request_handler;
-    if (context) {
-        context->is_running = 0;
-    }
+    if (context) { context->is_running = 0; }
 }

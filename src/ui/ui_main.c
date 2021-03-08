@@ -9,17 +9,15 @@ static void SetupButtons(GtkBuilder* builder) {
                      NULL);
 }
 static void InitTaskList(GtkBuilder* builder) { }
-static void DestroyTaskList() { }
 
 static void GtkMain(int argc, char** argv) {
     gtk_init(&argc, &argv);
     GtkBuilder* builder =
-        OpenWindowWithStyle("downloader.ui", "downloader.css", 1);
+        OpenWindowWithStyle("downloader.ui", "downloader.css", 0);
     if (!builder) { g_abort(); }
     SetupButtons(builder);
     InitTaskList(builder);
     gtk_main();
-    DestroyTaskList();
 }
 
 int RunDownloaderMain(int argc, char** argv) {

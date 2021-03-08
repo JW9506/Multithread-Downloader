@@ -53,3 +53,14 @@ void ShowAlertDialog(GtkWindow* window, const char* message) {
     gtk_dialog_run(alert_dialog);
     gtk_widget_destroy(GTK_WIDGET(alert_dialog));
 }
+
+gboolean ShowConfirmDialog(GtkWindow* window, char const* message) {
+    GtkDialog* alert_dialog = (GtkDialog*)gtk_message_dialog_new(
+        GTK_WINDOW(window), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION,
+        GTK_BUTTONS_OK_CANCEL, "%s", message);
+
+    int response = gtk_dialog_run(alert_dialog);
+    printf("response:%d\n", response);
+    gtk_widget_destroy(GTK_WIDGET(alert_dialog));
+    return response == GTK_RESPONSE_OK;
+}

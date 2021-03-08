@@ -35,9 +35,3 @@ RequestContext* CreateRequestContext(Request* request, char const* url,
                                      char const* directory);
 void DestroyRequestContext(RequestContext* request_context);
 void SendRequest(RequestContext* request_context);
-
-size_t CurlHeaderFunction(char* buffer, size_t size, size_t nitems,
-                          RequestContext* request_context);
-
-size_t CurlBodyFunction(char* buffer, size_t size, size_t nitems,
-                        RequestContext* request_context);

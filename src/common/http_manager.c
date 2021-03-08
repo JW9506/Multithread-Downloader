@@ -72,8 +72,8 @@ static int CurlProgressFunction(RequestContext* context, double download_total,
     return result;
 }
 
-size_t CurlHeaderFunction(char* buffer, size_t size, size_t nitems,
-                          RequestContext* request_context) {
+static size_t CurlHeaderFunction(char* buffer, size_t size, size_t nitems,
+                                 RequestContext* request_context) {
     size_t buffer_size = size * nitems;
     printf("%.*s", (int)buffer_size, buffer);
     if (buffer_size >= CONTENT_DISPOSITION_KEY_LENGTH &&
@@ -89,8 +89,8 @@ size_t CurlHeaderFunction(char* buffer, size_t size, size_t nitems,
     return buffer_size;
 }
 
-size_t CurlBodyFunction(char* buffer, size_t size, size_t nitems,
-                        RequestContext* request_context) {
+static size_t CurlBodyFunction(char* buffer, size_t size, size_t nitems,
+                               RequestContext* request_context) {
     if (!request_context->output_stream) {
         if (!request_context->output_filename) {
             RetrieveOutputNameFromUrl(request_context);
@@ -150,8 +150,7 @@ void SendRequest(RequestContext* request_context) {
     }
 
     char content_range[40];
-    if (request_context->range_start >= 0 &&
-        request_context->range_end >= 0) {
+    if (request_context->range_start >= 0 && request_context->range_end >= 0) {
         snprintf(content_range, 40, "%llu-%llu", request_context->range_start,
                  request_context->range_end);
     } else if (request_context->range_start >= 0) {

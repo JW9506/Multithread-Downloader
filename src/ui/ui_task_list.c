@@ -17,10 +17,6 @@ static DownloadTask* GetSelectedTask() {
             gtk_tree_path_get_indices(g_list_first(selected_rows)->data)[0];
         g_list_free_full(selected_rows, (GDestroyNotify)gtk_tree_path_free);
         printf("%d\n", selected_index);
-        if (!g_slist_nth(context->download_task_list, selected_index)) {
-            return NULL;
-        }
-        /* segment fault */
         return g_slist_nth(context->download_task_list, selected_index)->data;
     }
     return NULL;
@@ -40,7 +36,10 @@ static void OnTaskListActivated(GtkTreeView* tree_view, GtkTreePath* path,
     }
 }
 
+// todo: check
 static void CancelDownloadingAndDestroyTask(DownloadTask* download_task) {
+    // 16-12 2:23 request_handler assigned value in UI thread, not io thread as
+    // said
     if (download_task->request_handler != NULL &&
         download_task->task_info.status == STATUS_DOWNLOADING) {
         download_task->task_info.status = STATUS_REMOVED;

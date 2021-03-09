@@ -19,6 +19,7 @@ static void DownloadFileInternal(Request* request) {
     SendRequest(context);
     if (context->curl_code == CURLE_OK) {
         if (context->response_code >= 200 && context->response_code < 300) {
+            // gdk_threads_add_idle: invoke function in ui(main) thread
             gdk_threads_add_idle((GSourceFunc)request->success_callback,
                                  (gpointer)request->receiver);
         } else {

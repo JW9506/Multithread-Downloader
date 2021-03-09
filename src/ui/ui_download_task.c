@@ -51,6 +51,8 @@ DownloadTask* CreateDownloadTask(TaskListContext* task_list_context,
 
     GtkTreePath* path = gtk_tree_model_get_path(
         GTK_TREE_MODEL(task_list_context->task_store), &iterator);
+    // path vs. reference:
+    // path: static location; ref: dynamic location
     download_task->row_reference = gtk_tree_row_reference_new(
         GTK_TREE_MODEL(task_list_context->task_store), path);
     gtk_tree_path_free(path);
@@ -128,6 +130,7 @@ static int UpdateDownloadTaskProgress(DownloadTask* download_task) {
 }
 
 void UpdateDownloadTaskWithStatus(DownloadTask* download_task, int status) {
+    // todo: check
     if (download_task->task_info.status == STATUS_REMOVED) {
         if (download_task->task_info.id != INVALID_ID) {
             download_task->task_info.status = status;
@@ -162,6 +165,7 @@ void UpdateDownloadTaskWithStatus(DownloadTask* download_task, int status) {
                            &iterator, COLUMN_STATUS,
                            GetStatusText(download_task), -1);
 
+        // render the changed row
         gtk_tree_model_row_changed(
             GTK_TREE_MODEL(download_task->task_list_context->task_store), path,
             &iterator);
@@ -189,10 +193,11 @@ int OnDownloadFailed(DownloadTask* task) {
     return FALSE;
 }
 
-int OnProgressUpdated(DownloadTask* download_task, uint64_t current_types,
+int OnProgressUpdated(DownloadTask* download_task, uint64_t current_bytes,
                       uint64_t total_bytes) {
+    // Task resume handling
     download_task->task_info.progress =
-        current_types + download_task->task_info.size - total_bytes;
+        current_bytes + download_task->task_info.size - total_bytes;
     gdk_threads_add_idle(G_SOURCE_FUNC(UpdateDownloadTaskProgress),
                          download_task);
 }

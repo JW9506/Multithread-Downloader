@@ -9,6 +9,7 @@
 #define FILENAME_KEY                   "filename="
 #define FILENAME_KEY_LENGTH            9
 
+// locate filename in the buffer, copy it to the context
 static int
 RetrieveOutputNameFromContentDisposition(RequestContext* request_context,
                                          char const* content_disposition,

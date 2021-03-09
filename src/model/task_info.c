@@ -38,6 +38,7 @@ void UpdateTaskInfo(TaskInfo* task_info) {
 
 void DeleteTaskInfo(TaskInfo* task_info) {
     ExecuteSql("delete from task_info where id=$d", task_info->id);
+    task_info->id = INVALID_ID;
 }
 
 TaskInfo* FindTaskInfoById(sqlite3_int64 id) {

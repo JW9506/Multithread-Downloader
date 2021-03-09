@@ -7,7 +7,7 @@
 #include "ui/ui_task_list.h"
 
 #define URL_PATTERN                                                            \
-    "https?:\\/\\/"                                                             \
+    "https?:\\/\\/"                                                            \
     "(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-"  \
     "Z0-9()@:%_\\+.~#?&//=]*)"
 
@@ -29,7 +29,7 @@ static gboolean OnTaskCreatedSuccessful(TaskInfo* task_info) {
         free(task_info);
         gtk_dialog_response(context->dialog, 1);
     }
-    return FALSE;// return false to hint one time only
+    return FALSE; // return false to hint one time only
 }
 
 static gboolean OnTaskCreatedFailed(char const* message) {
@@ -55,11 +55,14 @@ static void OnGetTaskInfoSuccessful(void* receiver, void* data) {
     }
 }
 
-static void OnGetTaskInfoFailed(void* receiver, CURLcode code, char const* message) {
+static void OnGetTaskInfoFailed(void* receiver, CURLcode code,
+                                char const* message) {
     gdk_threads_add_idle(G_SOURCE_FUNC(OnTaskCreatedFailed), (gpointer)message);
 }
 
 void CreateTask(char const* url, char const* directory) {
+    // callbacks point to wrapper functions that direct the the call to
+    // gdk_thread
     GetTaskInfo(url, directory, OnGetTaskInfoSuccessful, OnGetTaskInfoFailed);
 }
 

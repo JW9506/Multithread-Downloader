@@ -37,5 +37,5 @@ int OnDownloadCancelled(DownloadTask* task);
 
 int OnDownloadFailed(DownloadTask* task);
 
-int OnProgressUpdated(DownloadTask* task, uint64_t current_types,
+int OnProgressUpdated(DownloadTask* download_task, uint64_t current_bytes,
                       uint64_t total_bytes);

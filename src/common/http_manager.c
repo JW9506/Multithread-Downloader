@@ -60,6 +60,7 @@ static int CurlProgressFunction(RequestContext* context, double download_total,
                                 double download_now, double upload_total,
                                 double upload_now) {
     int result = CURLE_OK;
+    // pre-flight "get file info" does not have a progress function
     if (download_total > 0 && context->response_code > 0) {
         context->request->progress_callback(context->request->receiver,
                                             download_now, download_total);
@@ -124,6 +125,7 @@ static size_t CurlBodyFunction(char* buffer, size_t size, size_t nitems,
     return size * nitems;
 }
 
+// called inside io thread
 void SendRequest(RequestContext* request_context) {
     if (request_context->is_running) {
         printf("the request has already started");
@@ -145,6 +147,7 @@ void SendRequest(RequestContext* request_context) {
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, request_context);
 
     if (request_context->request->progress_callback) {
+        // allow custum progress function
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
         curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, CurlProgressFunction);
         curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, request_context);
@@ -167,9 +170,11 @@ void SendRequest(RequestContext* request_context) {
     }
     curl_easy_setopt(curl, CURLOPT_CAINFO, "cacert.pem");
     curl_easy_setopt(curl, CURLOPT_CAPATH, "cacert.pem");
+    // 1. what is this?
     request_context->curl = curl;
     request_context->is_running = 1;
     request_context->curl_code = curl_easy_perform(curl);
+    // 2. what is this?
     request_context->curl = NULL;
     request_context->is_running = 0;
     curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T,

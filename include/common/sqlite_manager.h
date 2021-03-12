@@ -1,8 +1,8 @@
 #pragma once
 
 #include <sqlite3.h>
-#include <gtk-3.0/gtk/gtk.h>
-#include <glib-2.0/glib.h>
+#include <gtk/gtk.h>
+#include <glib.h>
 
 #define MAX_SQL_LENGTH
 

@@ -1,6 +1,6 @@
 #pragma once
 #include <sqlite3.h>
-#include <gtk-3.0/gtk/gtk.h>
+#include <gtk/gtk.h>
 
 #define STATUS_REMOVED     0
 #define STATUS_ERROR       1

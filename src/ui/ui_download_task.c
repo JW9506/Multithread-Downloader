@@ -129,6 +129,28 @@ static int UpdateDownloadTaskProgress(DownloadTask* download_task) {
     return FALSE;
 }
 
+static void
+download_task_status_data_gtk_sync_helper(DownloadTask* download_task,
+                                          int status) {
+    GtkTreePath* path =
+        gtk_tree_row_reference_get_path(download_task->row_reference);
+    GtkTreeIter iterator;
+    gtk_tree_model_get_iter(
+        GTK_TREE_MODEL(download_task->task_list_context->task_store), &iterator,
+        path);
+
+    gtk_list_store_set(download_task->task_list_context->task_store, &iterator,
+                       COLUMN_STATUS, GetStatusText(download_task), -1);
+
+    // render the changed row
+    gtk_tree_model_row_changed(
+        GTK_TREE_MODEL(download_task->task_list_context->task_store), path,
+        &iterator);
+
+    gtk_tree_path_free(path);
+    UpdateTaskInfo(&download_task->task_info);
+}
+
 void UpdateDownloadTaskWithStatus(DownloadTask* download_task, int status) {
     // todo: check
     if (download_task->task_info.status == STATUS_REMOVED) {
@@ -153,25 +175,7 @@ void UpdateDownloadTaskWithStatus(DownloadTask* download_task, int status) {
         } else {
             UpdateDownloadTaskProgress(download_task);
         }
-
-        GtkTreePath* path =
-            gtk_tree_row_reference_get_path(download_task->row_reference);
-        GtkTreeIter iterator;
-        gtk_tree_model_get_iter(
-            GTK_TREE_MODEL(download_task->task_list_context->task_store),
-            &iterator, path);
-
-        gtk_list_store_set(download_task->task_list_context->task_store,
-                           &iterator, COLUMN_STATUS,
-                           GetStatusText(download_task), -1);
-
-        // render the changed row
-        gtk_tree_model_row_changed(
-            GTK_TREE_MODEL(download_task->task_list_context->task_store), path,
-            &iterator);
-
-        gtk_tree_path_free(path);
-        UpdateTaskInfo(&download_task->task_info);
+        download_task_status_data_gtk_sync_helper(download_task, status);
     } else {
         printf("Download task(%lld), status not changed: %d\n",
                download_task->task_info.id, status);
